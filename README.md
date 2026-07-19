@@ -10,6 +10,8 @@ Rule-based file organizer CLI. Define where files should go — ordr does the re
 
 ordr reads rules from an `.ordrrc` config file and moves files into the right directories based on extension, name pattern, size, or age. Every operation is previewed before execution and can be reversed with `ordr undo`.
 
+A background watch agent (`ordr watch`) monitors directories in real-time via macOS FSEvents and moves files the moment they appear — no manual runs needed.
+
 ```sh
 $ ordr preview ~/Desktop
 
@@ -45,9 +47,11 @@ ordr/
       config/         # Domain types (Rule, MatchConfig, ...)
       rule/           # Rule matching engine (pure logic, no I/O)
       organizer/      # ExecutionPlan builder (pure logic, no I/O)
+      watcher/        # FSEvents watch loop + debounce (pure logic, no I/O)
     infra/
       config/         # Config loader (walks up dirs) + writer
       fs/             # File system operations + undo log
+      launchd/        # macOS launchd agent install/uninstall (darwin only)
   pkg/
     display/          # Terminal output formatting (lipgloss)
   docs/               # Astro + Starlight documentation website
@@ -111,6 +115,11 @@ go vet ./...
 | `ordr rules test <file>` | Show which rules match a file |
 | `ordr init` | Create a new `.ordrrc` config |
 | `ordr status [dir]` | Summary of files vs. rules |
+| `ordr watch install` | Install background watch agent *(macOS only)* |
+| `ordr watch uninstall` | Stop and remove the watch agent *(macOS only)* |
+| `ordr watch restart` | Restart agent after config changes *(macOS only)* |
+| `ordr watch status` | Show agent state and watched dirs *(macOS only)* |
+| `ordr watch logs` | Tail the watch log live *(macOS only)* |
 
 ---
 
@@ -133,7 +142,8 @@ rules:
       pattern: "^Screenshot.*"
       extensions: [".png"]
     scope:
-      dirs: ["~/Desktop"]
+      dirs: ["~/Desktop"]           # for ordr clean
+      watch_dirs: ["~/Desktop"]     # for ordr watch
 
   - name: "Old large videos"
     target: "~/Archive/Videos"
@@ -141,6 +151,14 @@ rules:
       extensions: [".mp4", ".mov"]
       min_size: "500MB"
       older_than: "90d"
+
+  - name: "Move AppIcons folder"
+    target: "~/Pictures/Icons"
+    match:
+      type: dir
+      pattern: "^AppIcons$"
+    options:
+      action: move
 ```
 
 Full config reference: [mcmuellermilch.github.io/ordr/config/overview](https://mcmuellermilch.github.io/ordr/config/overview)

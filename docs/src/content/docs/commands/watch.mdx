@@ -1,0 +1,161 @@
+---
+title: ordr watch
+description: Auto-organize files as they appear using a background macOS launchd agent.
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+Monitors directories in real-time and moves files the moment they appear — no manual runs needed.
+Powered by macOS FSEvents via a launchd agent that starts on login and stays running silently in the background.
+
+<Aside type="caution">
+  `ordr watch` is currently **macOS only**. Linux support (systemd) is planned for a future release.
+</Aside>
+
+---
+
+## Subcommands
+
+| Command | Description |
+|---------|-------------|
+| `ordr watch install` | Install and start the background agent |
+| `ordr watch uninstall` | Stop and remove the agent |
+| `ordr watch restart` | Restart the agent (pick up config changes) |
+| `ordr watch status` | Show agent state and watched directories |
+| `ordr watch logs` | Tail `~/.ordr/watch.log` live |
+
+---
+
+## Setup
+
+<Steps>
+
+1. **Add `watch_dirs` to your rules**
+
+   Only directories listed under `scope.watch_dirs` are monitored.
+   This is intentional — auto-watching is always explicit, never implicit.
+
+   ```yaml
+   # ~/.ordrrc
+   version: 1
+
+   rules:
+     - name: "PDFs"
+       target: "~/Documents/PDFs"
+       match:
+         extensions: [".pdf"]
+       scope:
+         dirs: ["~/Downloads"]        # for ordr clean
+         watch_dirs: ["~/Downloads"]  # for ordr watch
+
+     - name: "Screenshots"
+       target: "~/Pictures/Screenshots"
+       match:
+         pattern: "^Screenshot.*"
+         extensions: [".png"]
+       scope:
+         watch_dirs: ["~/Desktop"]    # watch only, never in manual clean
+   ```
+
+2. **Install the agent**
+
+   ```sh
+   ordr watch install
+   ```
+
+   This writes a plist to `~/Library/LaunchAgents/com.ordr.watch.plist` and loads it immediately.
+   The agent starts on every login automatically.
+
+3. **Verify it's running**
+
+   ```sh
+   ordr watch status
+   ```
+
+</Steps>
+
+---
+
+## How it works
+
+1. launchd starts `ordr watch --daemon` on login
+2. ordr registers all `scope.watch_dirs` with macOS FSEvents (kernel-level, zero CPU when idle)
+3. When a file appears, a **1-second debounce** timer starts — resetting on further activity
+4. Once stable, the file is evaluated against your rules
+5. On match: the file is moved, logged to `~/.ordr/watch.log`, and saved to the undo log
+
+The debounce prevents ordr from touching files mid-download. Chrome, Safari, and most apps rename the file atomically when the download completes — the watcher picks it up cleanly at that point.
+
+---
+
+## scope.dirs vs scope.watch_dirs
+
+The two scope properties are fully independent — no fallback between them.
+
+| Property | Used by |
+|----------|---------|
+| `scope.dirs` | `ordr clean` |
+| `scope.watch_dirs` | `ordr watch` |
+
+```yaml
+# Watch Desktop silently, but exclude it from manual runs
+scope:
+  dirs: ["~/Downloads"]
+  watch_dirs: ["~/Downloads", "~/Desktop"]
+
+# Only active during watch — never matched by ordr clean
+scope:
+  watch_dirs: ["~/Desktop"]
+
+# Only active during ordr clean — never watched
+scope:
+  dirs: ["~/Downloads"]
+```
+
+---
+
+## Logs
+
+All watch activity is logged to `~/.ordr/watch.log`:
+
+```
+2026-07-19 15:04:05  WATCH   /Users/you/Downloads
+2026-07-19 15:04:11  MOVED   /Users/you/Downloads/invoice.pdf  →  /Users/you/Documents/PDFs/invoice.pdf  [PDFs]
+2026-07-19 15:09:33  MOVED   /Users/you/Desktop/Screenshot 2026-07-19.png  →  /Users/you/Pictures/Screenshots/Screenshot 2026-07-19.png  [Screenshots]
+```
+
+Tail it live:
+
+```sh
+ordr watch logs
+```
+
+---
+
+## Undo
+
+Moves triggered by the watcher are saved to the same undo log as manual clean sessions.
+`ordr undo` works identically regardless of what triggered the move.
+
+---
+
+## After changing your config
+
+The agent does not hot-reload config. Run:
+
+```sh
+ordr watch restart
+```
+
+This uninstalls and reinstalls the agent, picking up any changes to `~/.ordrrc`.
+
+---
+
+## Uninstalling
+
+```sh
+ordr watch uninstall
+```
+
+Stops the agent immediately and removes the plist. ordr will no longer start on login.
+Your files and config are untouched.
