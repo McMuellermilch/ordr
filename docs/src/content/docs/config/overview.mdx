@@ -1,0 +1,115 @@
+---
+title: Configuration Overview
+description: How ordr finds, loads, and merges .ordrrc config files.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+ordr is configured with `.ordrrc` — a YAML file that defines your rules.
+
+---
+
+## File locations
+
+ordr searches for config files in this order:
+
+1. `.ordrrc` in the current directory
+2. `.ordrrc` walking up the directory tree (stops at `~`)
+3. `~/.ordrrc` (global fallback)
+
+When both a local and global config are found, their rules are **merged**:
+local rules come first, global rules are appended.
+
+---
+
+## Full schema
+
+```yaml
+version: 1          # always 1 for now
+
+rules:
+  - name: "Human-readable label"    # optional but recommended
+    target: "documents"             # destination (relative or absolute, ~ supported)
+
+    match:
+      extensions: [".pdf", ".docx"] # file extension filter
+      pattern: "^Invoice.*"         # regex on filename (optional)
+      min_size: "1MB"               # minimum file size (optional)
+      max_size: "100MB"             # maximum file size (optional)
+      older_than: "30d"             # file older than N days/weeks/hours (optional)
+      newer_than: "7d"              # file newer than N days/weeks/hours (optional)
+
+    scope:
+      dirs: []                      # limit rule to specific directories
+                                    # empty = apply everywhere
+
+    options:
+      on_conflict: "rename"         # rename | skip | overwrite
+      recursive: false              # recurse into subdirectories
+```
+
+---
+
+## Rule matching logic
+
+All specified matchers within a rule are combined with **AND** logic:
+a file must pass every configured matcher to match the rule.
+
+```yaml
+# This rule matches .pdf files that are also larger than 1MB
+- name: "Large PDFs"
+  target: "large-docs"
+  match:
+    extensions: [".pdf"]
+    min_size: "1MB"
+```
+
+If no matchers are specified, the rule is invalid and skipped with a warning.
+
+---
+
+## First-rule-wins
+
+Each file is processed by the **first** matching rule only.
+Rules lower in the list only apply to files not already matched.
+
+```yaml
+rules:
+  # This rule runs first
+  - name: "Invoices (priority)"
+    target: "invoices"
+    match:
+      pattern: "^Invoice.*"
+      extensions: [".pdf"]
+
+  # .pdf files matching the rule above are NOT processed here
+  - name: "All PDFs"
+    target: "documents"
+    match:
+      extensions: [".pdf"]
+```
+
+---
+
+## Size format
+
+Sizes use standard suffixes: `B`, `KB`, `MB`, `GB`, `TB`.
+
+```yaml
+min_size: "500KB"
+max_size: "2GB"
+```
+
+## Duration format
+
+Durations use `d` (days), `w` (weeks), or Go duration syntax (`24h`).
+
+```yaml
+older_than: "30d"    # 30 days
+newer_than: "2w"     # 2 weeks
+older_than: "168h"   # 7 days via hours
+```
+
+<Aside>
+  `older_than: "30d"` means the file's last modification time is more than 30 days ago.
+</Aside>

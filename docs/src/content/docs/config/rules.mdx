@@ -1,0 +1,103 @@
+---
+title: Rule Types & Matchers
+description: All available matchers and how to combine them.
+---
+
+## Matchers reference
+
+### `extensions`
+
+Match files by extension. Case-insensitive. Leading dot is optional in the config but recommended.
+
+```yaml
+match:
+  extensions: [".pdf", ".docx", ".xlsx"]
+```
+
+### `pattern`
+
+Match the filename (not the full path) against a regular expression.
+
+```yaml
+match:
+  pattern: "^Screenshot.*"      # files starting with "Screenshot"
+  pattern: ".*_backup\\.(zip|tar\\.gz)$"  # backup archives
+```
+
+### `min_size` / `max_size`
+
+Match files by size. Supports `B`, `KB`, `MB`, `GB`, `TB`.
+
+```yaml
+match:
+  min_size: "500MB"   # larger than 500 MB
+  max_size: "2GB"     # smaller than 2 GB
+```
+
+### `older_than` / `newer_than`
+
+Match files by their last modification time. Supports `d` (days), `w` (weeks), and Go duration syntax.
+
+```yaml
+match:
+  older_than: "90d"   # not modified in the last 90 days
+  newer_than: "7d"    # modified within the last 7 days
+```
+
+---
+
+## Scope
+
+Restrict a rule to specific directories. When `dirs` is empty, the rule applies everywhere.
+
+```yaml
+scope:
+  dirs:
+    - "~/Desktop"
+    - "~/Downloads"
+```
+
+Paths support `~` for the home directory. Both absolute and relative paths are accepted.
+
+---
+
+## Options
+
+### `on_conflict`
+
+What to do when a file already exists at the destination.
+
+| Value | Behavior |
+|-------|----------|
+| `rename` (default) | Appends ` (1)`, ` (2)`, etc. |
+| `skip` | Leaves the source file untouched |
+| `overwrite` | Replaces the destination file |
+
+```yaml
+options:
+  on_conflict: "skip"
+```
+
+### `recursive`
+
+When `true`, the rule also applies to files in subdirectories of the target directory.
+
+```yaml
+options:
+  recursive: true
+```
+
+---
+
+## Combining matchers
+
+All matchers are AND-combined. This rule matches `.mp4` files that are over 500 MB **and** older than 90 days:
+
+```yaml
+- name: "Old large videos"
+  target: "~/Archive/Videos"
+  match:
+    extensions: [".mp4", ".mov", ".mkv"]
+    min_size: "500MB"
+    older_than: "90d"
+```

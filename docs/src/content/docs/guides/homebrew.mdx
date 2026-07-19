@@ -1,0 +1,56 @@
+---
+title: Install via Homebrew
+description: How to install, update, and uninstall ordr using Homebrew.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+## Install
+
+<Steps>
+
+1. **Add the tap**
+
+   ```sh
+   brew tap florianmueller/tap
+   ```
+
+2. **Install ordr**
+
+   ```sh
+   brew install ordr
+   ```
+
+3. **Verify**
+
+   ```sh
+   ordr --version
+   ```
+
+</Steps>
+
+---
+
+## Update
+
+```sh
+brew update
+brew upgrade ordr
+```
+
+---
+
+## Uninstall
+
+```sh
+brew uninstall ordr
+brew untap florianmueller/tap   # optional: remove the tap
+```
+
+---
+
+## Why Homebrew?
+
+ordr is distributed as a single precompiled binary — no Node.js, no Python, no runtime required.
+Homebrew handles downloading the correct binary for your architecture (Apple Silicon or Intel),
+verifying the SHA256 checksum, and placing it on your `PATH`.

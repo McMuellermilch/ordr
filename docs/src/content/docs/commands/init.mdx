@@ -1,0 +1,45 @@
+---
+title: ordr init
+description: Create a new .ordrrc config file.
+---
+
+Creates an `.ordrrc` config file. By default, the global config at `~/.ordrrc` is created.
+
+```sh
+ordr init [flags]
+```
+
+If a config already exists at the target location, ordr prints its path and exits without overwriting.
+
+---
+
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `--local` / `-l` | Create config in the current directory instead of `~` |
+| `--template` | Initialize with example rules (PDFs, images, archives) |
+
+---
+
+## Examples
+
+```sh
+# Create global config (empty)
+ordr init
+
+# Create global config with example rules
+ordr init --template
+
+# Create a local config for the current project
+ordr init --local
+```
+
+---
+
+## Config precedence
+
+When both a local and global config exist, their rules are **merged**:
+local rules apply first, global rules fill in the rest.
+
+See [Configuration overview](/ordr/config/overview) for details.

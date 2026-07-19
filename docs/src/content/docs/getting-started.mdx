@@ -1,0 +1,115 @@
+---
+title: Getting Started
+description: Install ordr and organize your first directory in under 5 minutes.
+---
+
+import { Steps, Tabs, TabItem, Code } from "@astrojs/starlight/components";
+
+## Installation
+
+<Tabs>
+  <TabItem label="Homebrew (recommended)">
+    ```sh
+    brew tap florianmueller/tap
+    brew install ordr
+    ```
+  </TabItem>
+  <TabItem label="From source">
+    ```sh
+    git clone https://github.com/florianmueller/ordr
+    cd ordr
+    go build -o ordr ./cmd/ordr
+    mv ordr /usr/local/bin/
+    ```
+  </TabItem>
+</Tabs>
+
+Verify the installation:
+
+```sh
+ordr --version
+```
+
+---
+
+## Quick Start
+
+<Steps>
+
+1. **Create a config file**
+
+   ```sh
+   ordr init --template
+   ```
+
+   This creates `~/.ordrrc` with a few starter rules (PDFs, images, archives).
+   Open it in your editor to customize — it's plain YAML.
+
+2. **Preview what would be moved**
+
+   ```sh
+   ordr preview ~/Desktop
+   ```
+
+   ordr shows every file that matches a rule and where it would go.
+   Nothing is moved yet.
+
+3. **Run the clean**
+
+   ```sh
+   ordr clean ~/Desktop
+   ```
+
+   ordr shows the plan again and asks for confirmation before moving anything.
+
+4. **Made a mistake? Undo it**
+
+   ```sh
+   ordr undo
+   ```
+
+   Every clean operation is logged. `ordr undo` reverses the last one.
+
+</Steps>
+
+---
+
+## Your first `.ordrrc`
+
+The config file lives at `~/.ordrrc` (global) or `.ordrrc` in any directory (local).
+It's YAML and looks like this:
+
+```yaml
+version: 1
+
+rules:
+  - name: "PDFs to documents"
+    target: "documents"
+    match:
+      extensions: [".pdf"]
+
+  - name: "Screenshots"
+    target: "~/Pictures/Screenshots"
+    match:
+      pattern: "^Screenshot.*"
+      extensions: [".png", ".jpg"]
+    scope:
+      dirs: ["~/Desktop"]
+
+  - name: "Old large videos"
+    target: "~/Archive/Videos"
+    match:
+      extensions: [".mp4", ".mov", ".mkv"]
+      min_size: "500MB"
+      older_than: "90d"
+```
+
+See [Configuration](/ordr/config/overview) for the full reference.
+
+---
+
+## What's next?
+
+- [Command reference](/ordr/commands/clean) — all flags and options
+- [Configuration examples](/ordr/config/examples) — real-world rule setups
+- [Install via Homebrew](/ordr/guides/homebrew) — tap setup and updates

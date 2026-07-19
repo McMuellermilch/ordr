@@ -1,0 +1,84 @@
+---
+title: ordr rules
+description: List, add, remove, and test ordr rules.
+---
+
+Manage your rule configuration interactively and non-interactively.
+
+```sh
+ordr rules <subcommand> [flags]
+```
+
+---
+
+## Subcommands
+
+### `ordr rules list`
+
+Show all rules from the active config (local + global merged).
+
+```sh
+ordr rules list [flags]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--local` / `-l` | Show only rules from local config |
+| `--global` / `-g` | Show only rules from global config |
+
+**Output:**
+
+```
+  Rules (3 total)
+
+  Name                   │ Match                     │ Target              │ Source
+  ─────────────────────────────────────────────────────────────────────────────────
+  PDFs to documents      │ ext: .pdf                 │ documents/          │ ~/.ordrrc
+  Images                 │ ext: .png .jpg .jpeg      │ images/             │ ~/.ordrrc
+  Old large videos       │ ext: .mp4, >500MB, >90d   │ ~/Archive/Videos/   │ ~/.ordrrc
+```
+
+---
+
+### `ordr rules add`
+
+Interactively add a new rule using a guided form.
+
+```sh
+ordr rules add [flags]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--global` / `-g` | Add to global config (`~/.ordrrc`) |
+
+ordr prompts for: name, target directory, and matchers (extension, pattern, size, age).
+The rule is written to the active config file.
+
+---
+
+### `ordr rules remove <name>`
+
+Remove a rule by its name.
+
+```sh
+ordr rules remove "PDFs to documents"
+```
+
+---
+
+### `ordr rules test <file>`
+
+Show which rules would match a specific file.
+
+```sh
+ordr rules test ~/Desktop/invoice.pdf
+```
+
+```
+  Rule test — invoice.pdf
+
+  ✓ matches rule "PDFs to documents" → documents/
+```
+
+Useful for debugging why a file isn't being moved.

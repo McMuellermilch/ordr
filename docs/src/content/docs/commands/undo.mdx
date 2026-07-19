@@ -1,0 +1,63 @@
+---
+title: ordr undo
+description: Reverse the last ordr clean operation.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Reverses the most recent `ordr clean` by moving all files back to their original locations.
+
+```sh
+ordr undo [flags]
+```
+
+Every successful `ordr clean` is recorded in `~/.ordr/undo.json`. `ordr undo` pops the most recent entry from this stack.
+
+---
+
+## Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--list` | | Show what the last clean did, without undoing |
+| `--yes` | `-y` | Skip confirmation prompt |
+
+---
+
+## Examples
+
+```sh
+# See what would be undone
+ordr undo --list
+
+# Undo with confirmation prompt
+ordr undo
+
+# Undo immediately without confirmation
+ordr undo --yes
+```
+
+---
+
+## Output
+
+```sh
+ordr undo --list
+```
+
+```
+  Last clean — 3 move(s)
+
+  ~/Desktop/documents/invoice.pdf   →  ~/Desktop/invoice.pdf
+  ~/Desktop/images/photo.png        →  ~/Desktop/photo.png
+  ~/Desktop/archives/backup.zip     →  ~/Desktop/backup.zip
+
+  Run 'ordr undo' to reverse these moves.
+```
+
+---
+
+<Aside type="caution">
+  Only the **last** clean can be undone. Running `ordr clean` a second time
+  replaces the previous undo entry.
+</Aside>

@@ -1,0 +1,69 @@
+---
+title: ordr
+description: Rule-based file organizer CLI. Define where files should go — ordr does the rest.
+template: splash
+hero:
+  tagline: File chaos, organized.
+  actions:
+    - text: Get started
+      link: /ordr/getting-started
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/florianmueller/ordr
+      icon: github
+      variant: secondary
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<div class="terminal-demo">
+  <div><span class="prompt">$</span> <span class="cmd">ordr preview ~/Desktop</span></div>
+  <div>&nbsp;</div>
+  <div><span style="color:#a78bfa">  Preview</span> <span class="output-muted">— 4 file(s) would be moved</span></div>
+  <div>&nbsp;</div>
+  <div>
+    <span class="output-source">  ~/Desktop/invoice_2024.pdf</span>
+    <span class="output-arrow">  →  </span>
+    <span class="output-move">~/Desktop/documents/invoice_2024.pdf</span>
+    <span class="output-muted"> [PDFs]</span>
+  </div>
+  <div>
+    <span class="output-source">  ~/Desktop/Screenshot 2024-01-01.png</span>
+    <span class="output-arrow">  →  </span>
+    <span class="output-move">~/Pictures/Screenshots/Screenshot 2024-01-01.png</span>
+    <span class="output-muted"> [Screenshots]</span>
+  </div>
+  <div>
+    <span class="output-source">  ~/Desktop/project_backup.zip</span>
+    <span class="output-arrow">  →  </span>
+    <span class="output-move">~/Desktop/archives/project_backup.zip</span>
+    <span class="output-muted"> [Archives]</span>
+  </div>
+  <div>&nbsp;</div>
+  <div><span class="output-muted">  1 file(s) skipped (no matching rule)</span></div>
+  <div>&nbsp;</div>
+  <div><span class="prompt">$</span> <span class="cmd">ordr clean ~/Desktop --yes</span></div>
+  <div><span class="output-move">  ✓ Moved 3 file(s). Run 'ordr undo' to reverse.</span></div>
+</div>
+
+## Install
+
+<div class="install-snippet">
+  <span class="dollar">$</span>brew install florianmueller/tap/ordr
+</div>
+
+<CardGrid stagger>
+  <Card title="Safe by default" icon="warning">
+    Always preview before moving. `ordr preview` shows exactly what would happen — no surprises.
+  </Card>
+  <Card title="Reversible" icon="left-arrow">
+    Made a mistake? `ordr undo` reverses the last clean operation instantly.
+  </Card>
+  <Card title="Flexible rules" icon="setting">
+    Match files by extension, name pattern, size, or age. Rules compose cleanly.
+  </Card>
+  <Card title="Homebrew native" icon="download">
+    Single binary, zero runtime dependencies. Install once, works everywhere.
+  </Card>
+</CardGrid>

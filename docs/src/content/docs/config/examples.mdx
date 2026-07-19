@@ -1,0 +1,140 @@
+---
+title: Configuration Examples
+description: Real-world .ordrrc configurations for common use cases.
+---
+
+## Desktop cleanup
+
+Keep your Desktop tidy by sorting files into subdirectories.
+
+```yaml
+version: 1
+
+rules:
+  - name: "Screenshots"
+    target: "~/Pictures/Screenshots"
+    match:
+      pattern: "^Screenshot.*"
+      extensions: [".png"]
+    scope:
+      dirs: ["~/Desktop"]
+
+  - name: "PDFs"
+    target: "~/Desktop/documents"
+    match:
+      extensions: [".pdf"]
+    scope:
+      dirs: ["~/Desktop"]
+
+  - name: "Archives"
+    target: "~/Desktop/archives"
+    match:
+      extensions: [".zip", ".tar", ".gz", ".rar"]
+    scope:
+      dirs: ["~/Desktop"]
+```
+
+---
+
+## Downloads folder
+
+Auto-sort everything that lands in Downloads.
+
+```yaml
+version: 1
+
+rules:
+  - name: "Disk images"
+    target: "~/Downloads/installers"
+    match:
+      extensions: [".dmg", ".pkg", ".exe", ".msi"]
+
+  - name: "Videos"
+    target: "~/Downloads/videos"
+    match:
+      extensions: [".mp4", ".mkv", ".mov", ".avi"]
+
+  - name: "Audio"
+    target: "~/Downloads/audio"
+    match:
+      extensions: [".mp3", ".flac", ".wav", ".aac"]
+
+  - name: "Documents"
+    target: "~/Downloads/documents"
+    match:
+      extensions: [".pdf", ".docx", ".xlsx", ".pptx", ".pages", ".numbers"]
+
+  - name: "Images"
+    target: "~/Downloads/images"
+    match:
+      extensions: [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]
+```
+
+---
+
+## Archive old files
+
+Move files that haven't been touched in a long time to an archive.
+
+```yaml
+version: 1
+
+rules:
+  - name: "Archive old large videos"
+    target: "~/Archive/Videos"
+    match:
+      extensions: [".mp4", ".mov", ".mkv"]
+      min_size: "500MB"
+      older_than: "90d"
+
+  - name: "Archive old documents"
+    target: "~/Archive/Documents"
+    match:
+      extensions: [".pdf", ".docx", ".xlsx"]
+      older_than: "365d"
+```
+
+---
+
+## Project-specific local config
+
+Place a `.ordrrc` in your project directory to define project-specific rules.
+These are merged with (and take precedence over) your global `~/.ordrrc`.
+
+```yaml
+# ~/projects/my-app/.ordrrc
+version: 1
+
+rules:
+  - name: "Design assets"
+    target: "assets/design"
+    match:
+      extensions: [".sketch", ".fig", ".xd"]
+
+  - name: "Exported assets"
+    target: "assets/exported"
+    match:
+      extensions: [".svg", ".png"]
+      pattern: "^export_.*"
+```
+
+---
+
+## Invoice organization
+
+```yaml
+version: 1
+
+rules:
+  - name: "Invoices"
+    target: "~/Documents/Invoices"
+    match:
+      extensions: [".pdf"]
+      pattern: "(?i)(invoice|rechnung|bill).*"
+
+  - name: "Receipts"
+    target: "~/Documents/Receipts"
+    match:
+      extensions: [".pdf"]
+      pattern: "(?i)(receipt|beleg|quittung).*"
+```

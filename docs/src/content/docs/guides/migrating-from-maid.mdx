@@ -1,0 +1,82 @@
+---
+title: Migrating from maid
+description: How to migrate your .maidrc configuration to ordr's .ordrrc format.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+ordr is a complete rewrite of the `maid` CLI. The core concept is the same — rules move files — but the config format and features have changed.
+
+---
+
+## Config format comparison
+
+**maid `.maidrc`:**
+
+```json
+{
+  "cleanRules": [
+    {
+      "dirName": "documents",
+      "fileExtension": [".pdf"],
+      "pattern": "",
+      "applyInDir": []
+    },
+    {
+      "dirName": "images",
+      "fileExtension": [".png", ".jpg"],
+      "applyInDir": ["/Users/you/Desktop"]
+    }
+  ]
+}
+```
+
+**ordr `.ordrrc`:**
+
+```yaml
+version: 1
+
+rules:
+  - name: "Documents"
+    target: "documents"
+    match:
+      extensions: [".pdf"]
+
+  - name: "Images"
+    target: "images"
+    match:
+      extensions: [".png", ".jpg"]
+    scope:
+      dirs: ["~/Desktop"]
+```
+
+---
+
+## Field mapping
+
+| maid field | ordr field |
+|------------|-----------|
+| `dirName` | `target` |
+| `fileExtension` | `match.extensions` |
+| `pattern` | `match.pattern` |
+| `applyInDir` | `scope.dirs` |
+
+---
+
+## New features in ordr
+
+- **Dry-run / preview** — `ordr preview` before you move anything
+- **Undo** — `ordr undo` reverses the last clean
+- **Size matchers** — `min_size`, `max_size`
+- **Age matchers** — `older_than`, `newer_than`
+- **Conflict handling** — `rename`, `skip`, or `overwrite` per rule
+- **Local + global configs** — project-level `.ordrrc` merges with `~/.ordrrc`
+- **`ordr rules test`** — debug why a file isn't matched
+- **Single binary** — no Node.js runtime needed
+
+---
+
+<Aside type="tip">
+  Run `ordr init --template` to get a fresh `.ordrrc` with example rules,
+  then copy your old `maid` rules over using the field mapping above.
+</Aside>

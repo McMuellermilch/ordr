@@ -1,0 +1,41 @@
+---
+title: ordr preview
+description: See what ordr clean would do without moving any files.
+---
+
+Alias for `ordr clean --dry-run`. Shows the full execution plan without touching the filesystem.
+
+```sh
+ordr preview [directory] [flags]
+```
+
+---
+
+## Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--recursive` | `-r` | Recurse into subdirectories |
+| `--rule <name>` | | Preview only the rule with this name |
+
+---
+
+## Example
+
+```sh
+ordr preview ~/Desktop
+```
+
+```
+  Preview — 3 file(s) would be moved
+
+  ~/Desktop/invoice.pdf  →  ~/Desktop/documents/invoice.pdf [PDFs to documents]
+  ~/Desktop/photo.png    →  ~/Desktop/images/photo.png [Images]
+  ~/Desktop/backup.zip   →  ~/Desktop/archives/backup.zip [Archives]
+
+  12 file(s) skipped (no matching rule)
+
+  Run without --dry-run to apply.
+```
+
+No confirmation prompt is shown. Nothing is moved.

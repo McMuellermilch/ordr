@@ -1,0 +1,98 @@
+---
+title: ordr clean
+description: Organize files in a directory by applying your configured rules.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Moves files matching your rules into their configured destinations. Creates destination directories automatically.
+
+```sh
+ordr clean [directory] [flags]
+```
+
+If `directory` is omitted, the current working directory is used.
+
+---
+
+## Flags
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--dry-run` | `-n` | false | Preview what would happen without moving anything |
+| `--recursive` | `-r` | false | Recurse into subdirectories |
+| `--global` | `-g` | false | Also process rules that have explicit `scope.dirs` defined |
+| `--rule <name>` | | | Run only the rule with this name |
+| `--yes` | `-y` | false | Skip all confirmation prompts |
+| `--verbose` | `-v` | false | Show each file evaluated, not just moved files |
+
+---
+
+## Behavior
+
+1. Loads and merges config (local `.ordrrc` + global `~/.ordrrc`)
+2. Warns if the target directory is a git repo (requires `--yes` or confirmation)
+3. Builds an execution plan without touching the filesystem
+4. Prints the plan and asks for confirmation (unless `--yes`)
+5. Executes moves and saves them to `~/.ordr/undo.json`
+
+<Aside type="tip">
+  Use `ordr preview` (or `ordr clean --dry-run`) to inspect the plan first.
+  It's identical to `clean` but stops before asking for confirmation.
+</Aside>
+
+---
+
+## Examples
+
+```sh
+# Clean current directory (with confirmation)
+ordr clean
+
+# Clean Desktop without confirmation
+ordr clean ~/Desktop --yes
+
+# Preview only — nothing is moved
+ordr clean ~/Desktop --dry-run
+
+# Clean recursively
+ordr clean ~/Downloads --recursive
+
+# Run only the "PDFs" rule
+ordr clean ~/Desktop --rule "PDFs to documents"
+
+# Verbose: show every file evaluated
+ordr clean ~/Desktop --verbose
+```
+
+---
+
+## Output
+
+```
+  Plan — 3 file(s) to move
+
+  ~/Desktop/invoice.pdf  →  ~/Desktop/documents/invoice.pdf [PDFs to documents]
+  ~/Desktop/photo.png    →  ~/Desktop/images/photo.png [Images]
+  ~/Desktop/backup.zip   →  ~/Desktop/archives/backup.zip [Archives]
+
+  12 file(s) skipped (no matching rule)
+
+? Move 3 file(s)? (Y/n)
+
+  ✓ Moved 3 file(s). Run 'ordr undo' to reverse.
+```
+
+---
+
+## Conflict resolution
+
+When a file already exists at the destination, the rule's `options.on_conflict` setting applies:
+
+| Value | Behavior |
+|-------|----------|
+| `rename` (default) | Appends ` (1)`, ` (2)`, etc. to the filename |
+| `skip` | Leaves the file in place |
+| `overwrite` | Replaces the existing file |
+
+See [Rule options](/ordr/config/rules#options) for details.

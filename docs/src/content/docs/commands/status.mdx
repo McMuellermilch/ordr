@@ -1,0 +1,35 @@
+---
+title: ordr status
+description: Show a summary of the current directory relative to your active rules.
+---
+
+Displays a quick overview: which config is active, how many rules are loaded, and how many files would be moved.
+
+```sh
+ordr status [directory]
+```
+
+---
+
+## Example
+
+```sh
+ordr status ~/Desktop
+```
+
+```
+  ordr status — ~/Desktop
+
+  Config:  ~/.ordrrc (global)
+  Rules:   3 active
+
+  Files:   47 total
+           12 would be moved  (run: ordr preview)
+           35 unmatched
+
+  Git repo: no
+```
+
+---
+
+`ordr status` never moves files. It's read-only.
