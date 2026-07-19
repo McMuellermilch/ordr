@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-  site: "https://florianmueller.github.io",
+  site: "https://McMuellermilch.github.io",
   base: "/ordr",
   integrations: [
     starlight({
@@ -17,7 +17,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/florianmueller/ordr",
+          href: "https://github.com/McMuellermilch/ordr",
         },
       ],
       customCss: ["./src/styles/custom.css"],
