@@ -30,6 +30,7 @@ func Execute(version string) error {
 		newRulesCmd(),
 		newInitCmd(),
 		newStatusCmd(),
+		newWatchCmd(),
 	)
 
 	return rootCmd.Execute()

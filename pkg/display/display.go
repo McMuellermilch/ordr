@@ -200,6 +200,55 @@ func shortenPath(path string) string {
 	return "~/" + rel
 }
 
+// WatchStatusDisplay holds data for the watch status output.
+type WatchStatusDisplay struct {
+	Installed bool
+	Running   bool
+	PID       int
+	WatchDirs []string
+	LogPath   string
+}
+
+// PrintWatchStatus renders the watch agent status.
+func PrintWatchStatus(s WatchStatusDisplay) {
+	fmt.Println()
+
+	if !s.Installed {
+		fmt.Println(styleHeader.Render("  Watch agent") + "  " + styleRed.Render("not installed"))
+		fmt.Println()
+		fmt.Println(styleMuted.Render("  Run 'ordr watch install' to set up the background agent."))
+		fmt.Println()
+		return
+	}
+
+	agentState := styleGreen.Render("running")
+	pidStr := ""
+	if s.Running && s.PID > 0 {
+		pidStr = styleMuted.Render(fmt.Sprintf("  (PID %d)", s.PID))
+	}
+	if !s.Running {
+		agentState = styleYellow.Render("installed, not running")
+	}
+
+	fmt.Println(styleHeader.Render("  Watch agent") + "  " + agentState + pidStr)
+	fmt.Println()
+
+	if len(s.WatchDirs) > 0 {
+		fmt.Println(styleBold.Render("  Watching"))
+		for _, d := range s.WatchDirs {
+			fmt.Println(styleMuted.Render("    " + d))
+		}
+		fmt.Println()
+	}
+
+	if s.LogPath != "" {
+		fmt.Println(styleMuted.Render("  Log  ") + s.LogPath)
+		fmt.Println(styleMuted.Render("  Run 'ordr watch logs' to tail the log live."))
+	}
+
+	fmt.Println()
+}
+
 func pad(s string, width int) string {
 	if len(s) >= width {
 		return s

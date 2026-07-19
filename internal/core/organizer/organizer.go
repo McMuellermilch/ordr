@@ -125,9 +125,13 @@ func walk(rootDir, currentDir string, cfg config.Config, recursive bool, plan *E
 	return nil
 }
 
-// resolveTarget resolves the destination path for a file.
+// ResolveTarget resolves the destination path for a file.
 // If target is absolute or starts with ~, it is used as-is (with home expansion).
-// Otherwise it is relative to the directory being cleaned.
+// Otherwise it is relative to rootDir.
+func ResolveTarget(target, rootDir, srcPath string) string {
+	return resolveTarget(target, rootDir, srcPath)
+}
+
 func resolveTarget(target, rootDir, srcPath string) string {
 	target = expandHome(target)
 	var destDir string

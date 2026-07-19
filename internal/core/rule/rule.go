@@ -91,11 +91,15 @@ func isScopeMatch(r config.Rule, currentDir string) bool {
 	if len(r.Scope.Dirs) == 0 {
 		return true
 	}
+	return matchesAnyDir(r.Scope.Dirs, currentDir)
+}
+
+func matchesAnyDir(dirs []string, currentDir string) bool {
 	absCurrentDir, err := filepath.Abs(currentDir)
 	if err != nil {
 		return false
 	}
-	for _, dir := range r.Scope.Dirs {
+	for _, dir := range dirs {
 		expanded := expandHome(dir)
 		absDir, err := filepath.Abs(expanded)
 		if err != nil {
@@ -106,6 +110,57 @@ func isScopeMatch(r config.Rule, currentDir string) bool {
 		}
 	}
 	return false
+}
+
+// EvaluateWatch checks whether a file matches a rule using scope.watch_dirs.
+// Returns false immediately if the rule has no watch_dirs defined.
+func EvaluateWatch(f FileInfo, r config.Rule, currentDir string) MatchResult {
+	if len(r.Scope.WatchDirs) == 0 {
+		return MatchResult{Matched: false}
+	}
+
+	matchType := r.Match.Type
+	if matchType == "" {
+		matchType = config.MatchTypeFile
+	}
+
+	switch matchType {
+	case config.MatchTypeDir:
+		if !f.IsDir {
+			return MatchResult{Matched: false}
+		}
+	default:
+		if f.IsDir {
+			return MatchResult{Matched: false}
+		}
+	}
+
+	if !matchesAnyDir(r.Scope.WatchDirs, currentDir) {
+		return MatchResult{Matched: false}
+	}
+
+	if !hasAnyMatcher(r.Match) {
+		return MatchResult{Matched: false}
+	}
+
+	if !isPatternMatch(r.Match, f.Name) {
+		return MatchResult{Matched: false}
+	}
+
+	if !f.IsDir && !isExtensionMatch(r.Match, f.Name) {
+		return MatchResult{Matched: false}
+	}
+
+	if !f.IsDir {
+		if !isSizeMatch(r.Match, f.Size) {
+			return MatchResult{Matched: false}
+		}
+		if !isAgeMatch(r.Match, f.ModTime) {
+			return MatchResult{Matched: false}
+		}
+	}
+
+	return MatchResult{Matched: true, Rule: r}
 }
 
 func isExtensionMatch(m config.MatchConfig, filename string) bool {
