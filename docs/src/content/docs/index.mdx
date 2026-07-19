@@ -1,47 +1,42 @@
 ---
 title: ordr
 description: Rule-based file organizer CLI. Define where files should go — ordr does the rest.
-template: splash
-hero:
-  tagline: File chaos, organized.
-  actions:
-    - text: Get started
-      link: /ordr/getting-started
-      icon: right-arrow
-      variant: primary
-    - text: View on GitHub
-      link: https://github.com/McMuellermilch/ordr
-      icon: github
-      variant: secondary
 ---
 
-import { Card, CardGrid } from "@astrojs/starlight/components";
+import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
+
+**File chaos, organized.**
+
+ordr is a rule-based file organizer. Define rules in `.ordrrc` describing where files should go — by extension, name pattern, size, or age — then run `ordr clean` to apply them.
+
+<div style="display:flex;gap:0.75rem;margin:1.5rem 0;">
+  <LinkButton href="/ordr/getting-started" icon="right-arrow">Get started</LinkButton>
+  <LinkButton href="https://github.com/McMuellermilch/ordr" icon="github" variant="secondary">GitHub</LinkButton>
+</div>
 
 <div class="terminal-demo">
   <div><span class="prompt">$</span> <span class="cmd">ordr preview &#126;/Desktop</span></div>
   <div>&nbsp;</div>
-  <div><span style="color:#a78bfa">  Preview</span> <span class="output-muted">— 4 file(s) would be moved</span></div>
+  <div><span style="color:#a78bfa">  Preview</span> <span class="output-muted">— 3 file(s) would be moved</span></div>
   <div>&nbsp;</div>
   <div>
     <span class="output-source">  &#126;/Desktop/invoice_2024.pdf</span>
-    <span class="output-arrow">  →  </span>
+    <span class="output-arrow"> → </span>
     <span class="output-move">&#126;/Desktop/documents/invoice_2024.pdf</span>
     <span class="output-muted"> [PDFs]</span>
   </div>
   <div>
     <span class="output-source">  &#126;/Desktop/Screenshot 2024-01-01.png</span>
-    <span class="output-arrow">  →  </span>
+    <span class="output-arrow"> → </span>
     <span class="output-move">&#126;/Pictures/Screenshots/Screenshot 2024-01-01.png</span>
     <span class="output-muted"> [Screenshots]</span>
   </div>
   <div>
     <span class="output-source">  &#126;/Desktop/project_backup.zip</span>
-    <span class="output-arrow">  →  </span>
+    <span class="output-arrow"> → </span>
     <span class="output-move">&#126;/Desktop/archives/project_backup.zip</span>
     <span class="output-muted"> [Archives]</span>
   </div>
-  <div>&nbsp;</div>
-  <div><span class="output-muted">  1 file(s) skipped (no matching rule)</span></div>
   <div>&nbsp;</div>
   <div><span class="prompt">$</span> <span class="cmd">ordr clean &#126;/Desktop --yes</span></div>
   <div><span class="output-move">  ✓ Moved 3 file(s). Run 'ordr undo' to reverse.</span></div>
@@ -49,11 +44,14 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
 
 ## Install
 
-<div class="install-snippet">
-  <span class="dollar">$</span>brew install McMuellermilch/tap/ordr
-</div>
+```sh
+brew tap McMuellermilch/tap
+brew install ordr
+```
 
-<CardGrid stagger>
+## Features
+
+<CardGrid>
   <Card title="Safe by default" icon="warning">
     Always preview before moving. `ordr preview` shows exactly what would happen — no surprises.
   </Card>
@@ -61,7 +59,7 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
     Made a mistake? `ordr undo` reverses the last clean operation instantly.
   </Card>
   <Card title="Flexible rules" icon="setting">
-    Match files by extension, name pattern, size, or age. Rules compose cleanly.
+    Match by extension, name pattern, file size, or age. Rules compose cleanly.
   </Card>
   <Card title="Homebrew native" icon="download">
     Single binary, zero runtime dependencies. Install once, works everywhere.
