@@ -42,8 +42,8 @@ func Load(startDir string) (*LoadResult, error) {
 	if local != nil {
 		merged.Rules = append(merged.Rules, local.Rules...)
 	}
-	// Global rules appended after
-	if global != nil {
+	// Global rules appended after — skip if the same file was already loaded as local
+	if global != nil && globalPath != localPath {
 		merged.Rules = append(merged.Rules, global.Rules...)
 	}
 
