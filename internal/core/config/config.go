@@ -28,7 +28,8 @@ type MatchConfig struct {
 
 // ScopeConfig restricts which directories a rule applies to.
 type ScopeConfig struct {
-	Dirs []string `yaml:"dirs"`
+	Dirs      []string `yaml:"dirs"`       // used by `ordr clean`
+	WatchDirs []string `yaml:"watch_dirs"` // used by `ordr watch` (falls back to Dirs if empty)
 }
 
 // RuleOptions controls per-rule behavior.

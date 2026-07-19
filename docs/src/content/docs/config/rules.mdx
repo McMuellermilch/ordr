@@ -67,13 +67,40 @@ match:
 
 ## Scope
 
-Restrict a rule to specific directories. When `dirs` is empty, the rule applies everywhere.
+Restrict which directories a rule applies to. Scope has two independent properties:
+
+### `scope.dirs`
+
+Directories the rule applies to when running `ordr clean` manually. When empty, the rule applies everywhere.
 
 ```yaml
 scope:
   dirs:
     - "~/Desktop"
     - "~/Downloads"
+```
+
+### `scope.watch_dirs`
+
+Directories the rule monitors when `ordr watch` is running. When empty, falls back to `scope.dirs`.
+
+```yaml
+scope:
+  dirs: ["~/Downloads"]
+  watch_dirs: ["~/Downloads", "~/Desktop"]
+```
+
+This lets you control manual and automatic behavior independently:
+
+```yaml
+# Watch Desktop silently, but never include it in manual runs
+scope:
+  dirs: ["~/Downloads"]
+  watch_dirs: ["~/Downloads", "~/Desktop"]
+
+# Only watch, never match in manual runs
+scope:
+  watch_dirs: ["~/Desktop"]
 ```
 
 Paths support `~` for the home directory. Both absolute and relative paths are accepted.

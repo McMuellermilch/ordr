@@ -41,8 +41,8 @@ rules:
       newer_than: "7d"              # file newer than N days/weeks/hours (optional)
 
     scope:
-      dirs: []                      # limit rule to specific directories
-                                    # empty = apply everywhere
+      dirs: []                      # directories for `ordr clean` (empty = everywhere)
+      watch_dirs: []                # directories for `ordr watch` (falls back to dirs if empty)
 
     options:
       on_conflict: "rename"         # rename | skip | overwrite
