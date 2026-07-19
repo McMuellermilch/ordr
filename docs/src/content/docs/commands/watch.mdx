@@ -98,16 +98,16 @@ The two scope properties are fully independent — no fallback between them.
 | `scope.watch_dirs` | `ordr watch` |
 
 ```yaml
-# Watch Desktop silently, but exclude it from manual runs
+# Clean Downloads manually, also watch Downloads and Desktop automatically
 scope:
   dirs: ["~/Downloads"]
   watch_dirs: ["~/Downloads", "~/Desktop"]
 
-# Only active during watch — never matched by ordr clean
+# No scope.dirs — ordr clean applies this rule anywhere, ordr watch only on Desktop
 scope:
   watch_dirs: ["~/Desktop"]
 
-# Only active during ordr clean — never watched
+# Restrict ordr clean to Downloads only, not watched at all
 scope:
   dirs: ["~/Downloads"]
 ```

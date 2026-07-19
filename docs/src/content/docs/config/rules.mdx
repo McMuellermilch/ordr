@@ -93,16 +93,16 @@ scope:
 This gives you full independent control:
 
 ```yaml
-# Clean Downloads manually, watch both Downloads and Desktop automatically
+# Restrict ordr clean to Downloads, also watch Downloads and Desktop
 scope:
   dirs: ["~/Downloads"]
   watch_dirs: ["~/Downloads", "~/Desktop"]
 
-# Only active during watch, never matched by ordr clean
+# No scope.dirs — ordr clean applies this rule anywhere, ordr watch only on Desktop
 scope:
   watch_dirs: ["~/Desktop"]
 
-# Only active during ordr clean, never watched
+# Restrict ordr clean to Downloads only, not watched at all
 scope:
   dirs: ["~/Downloads"]
 ```
