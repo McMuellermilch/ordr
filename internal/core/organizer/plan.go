@@ -1,10 +1,13 @@
 package organizer
 
-// MoveOperation describes a single file move.
+// MoveOperation describes a single move (file or directory).
 type MoveOperation struct {
-	From     string // absolute source path
-	To       string // absolute destination path
-	RuleName string
+	From        string // absolute source path
+	To          string // absolute destination path
+	RuleName    string
+	IsDir       bool   // true when moving a whole directory
+	Action      string // "move" | "flatten"
+	RemoveEmpty bool   // flatten only: remove source dir if empty after extraction
 }
 
 // SkipOperation describes a file that was evaluated but not matched.

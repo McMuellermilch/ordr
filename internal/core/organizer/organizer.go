@@ -37,9 +37,44 @@ func walk(rootDir, currentDir string, cfg config.Config, recursive bool, plan *E
 		entryPath := filepath.Join(currentDir, entry.Name())
 
 		if entry.IsDir() {
-			if recursive && entry.Name() != ".git" {
-				if err := walk(rootDir, entryPath, cfg, recursive, plan); err != nil {
-					return err
+			if planned[entryPath] {
+				continue
+			}
+			fi, _ := entry.Info()
+			dirInfo := rule.FileInfo{
+				Path:    entryPath,
+				Name:    entry.Name(),
+				ModTime: fi.ModTime(),
+				IsDir:   true,
+			}
+			dirMatched := false
+			for _, r := range cfg.Rules {
+				result := rule.Evaluate(dirInfo, r, currentDir)
+				if result.Matched {
+					action := r.Options.Action
+					if action == "" {
+						action = config.ActionMove
+					}
+					target := resolveTarget(r.Target, rootDir, entryPath)
+					plan.Moves = append(plan.Moves, MoveOperation{
+						From:        entryPath,
+						To:          target,
+						RuleName:    r.Name,
+						IsDir:       true,
+						Action:      action,
+						RemoveEmpty: r.Options.RemoveEmpty,
+					})
+					planned[entryPath] = true
+					dirMatched = true
+					break
+				}
+			}
+			// If no dir rule matched, recurse into it (if recursive or no rule touched it)
+			if !dirMatched && entry.Name() != ".git" {
+				if recursive {
+					if err := walk(rootDir, entryPath, cfg, recursive, plan); err != nil {
+						return err
+					}
 				}
 			}
 			continue
@@ -71,6 +106,7 @@ func walk(rootDir, currentDir string, cfg config.Config, recursive bool, plan *E
 					From:     entryPath,
 					To:       target,
 					RuleName: r.Name,
+					Action:   config.ActionMove,
 				})
 				planned[entryPath] = true
 				matched = true

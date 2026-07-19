@@ -107,7 +107,7 @@ func runClean(dir string, opts cleanOptions) error {
 	}
 
 	if !opts.yes {
-		confirmed, err := confirmPrompt(fmt.Sprintf("Move %d file(s)?", len(plan.Moves)))
+		confirmed, err := confirmPrompt(fmt.Sprintf("Move %d item(s)?", len(plan.Moves)))
 		if err != nil || !confirmed {
 			display.PrintInfo("Clean aborted.")
 			return nil
@@ -123,21 +123,61 @@ func executePlan(plan *organizer.ExecutionPlan, verbose bool) error {
 
 	for _, move := range plan.Moves {
 		onConflict := config.DefaultOnConflict
-		actualDst, err := infrafs.MoveFile(move.From, move.To, onConflict)
-		if err != nil {
-			if errors.Is(err, infrafs.ErrSkipped) {
-				if verbose {
-					display.PrintSkipped(move.From, "conflict")
+
+		switch {
+		case move.IsDir && move.Action == config.ActionFlatten:
+			moves, err := infrafs.FlattenDir(move.From, move.To, onConflict, move.RemoveEmpty)
+			undoMoves = append(undoMoves, moves...)
+			if err != nil {
+				if errors.Is(err, infrafs.ErrSkipped) {
+					if verbose {
+						display.PrintSkipped(move.From, "conflict")
+					}
+					continue
 				}
+				display.PrintError(fmt.Sprintf("flattening %s: %v", move.From, err))
+				errs = append(errs, err)
 				continue
 			}
-			display.PrintError(fmt.Sprintf("moving %s: %v", move.From, err))
-			errs = append(errs, err)
-			continue
-		}
-		undoMoves = append(undoMoves, infrafs.UndoMove{From: move.From, To: actualDst})
-		if verbose {
-			display.PrintSuccess(move.From, actualDst)
+			if verbose {
+				display.PrintSuccess(move.From, move.To)
+			}
+
+		case move.IsDir:
+			actualDst, err := infrafs.MoveDir(move.From, move.To, onConflict)
+			if err != nil {
+				if errors.Is(err, infrafs.ErrSkipped) {
+					if verbose {
+						display.PrintSkipped(move.From, "conflict")
+					}
+					continue
+				}
+				display.PrintError(fmt.Sprintf("moving dir %s: %v", move.From, err))
+				errs = append(errs, err)
+				continue
+			}
+			undoMoves = append(undoMoves, infrafs.UndoMove{From: move.From, To: actualDst})
+			if verbose {
+				display.PrintSuccess(move.From, actualDst)
+			}
+
+		default:
+			actualDst, err := infrafs.MoveFile(move.From, move.To, onConflict)
+			if err != nil {
+				if errors.Is(err, infrafs.ErrSkipped) {
+					if verbose {
+						display.PrintSkipped(move.From, "conflict")
+					}
+					continue
+				}
+				display.PrintError(fmt.Sprintf("moving %s: %v", move.From, err))
+				errs = append(errs, err)
+				continue
+			}
+			undoMoves = append(undoMoves, infrafs.UndoMove{From: move.From, To: actualDst})
+			if verbose {
+				display.PrintSuccess(move.From, actualDst)
+			}
 		}
 	}
 
@@ -145,7 +185,7 @@ func executePlan(plan *organizer.ExecutionPlan, verbose bool) error {
 		if err := infrafs.AppendUndoEntry(undoMoves); err != nil {
 			display.PrintWarning("could not write undo log: " + err.Error())
 		}
-		display.PrintSuccess2(fmt.Sprintf("Moved %d file(s). Run 'ordr undo' to reverse.", len(undoMoves)))
+		display.PrintSuccess2(fmt.Sprintf("Moved %d item(s). Run 'ordr undo' to reverse.", len(undoMoves)))
 	}
 
 	if len(errs) > 0 {

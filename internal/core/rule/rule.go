@@ -28,10 +28,23 @@ type MatchResult struct {
 	Reason  string // human-readable explanation for dry-run output
 }
 
-// Evaluate checks whether a file matches a rule. All specified matchers must pass.
+// Evaluate checks whether a file or directory matches a rule. All specified matchers must pass.
 func Evaluate(f FileInfo, r config.Rule, currentDir string) MatchResult {
-	if f.IsDir {
-		return MatchResult{Matched: false}
+	// Type matching: default is "file"
+	matchType := r.Match.Type
+	if matchType == "" {
+		matchType = config.MatchTypeFile
+	}
+
+	switch matchType {
+	case config.MatchTypeDir:
+		if !f.IsDir {
+			return MatchResult{Matched: false}
+		}
+	default: // "file"
+		if f.IsDir {
+			return MatchResult{Matched: false}
+		}
 	}
 
 	if !isScopeMatch(r, currentDir) {
@@ -42,20 +55,23 @@ func Evaluate(f FileInfo, r config.Rule, currentDir string) MatchResult {
 		return MatchResult{Matched: false, Reason: fmt.Sprintf("rule %q has no matchers", r.Name)}
 	}
 
-	if !isExtensionMatch(r.Match, f.Name) {
-		return MatchResult{Matched: false}
-	}
-
 	if !isPatternMatch(r.Match, f.Name) {
 		return MatchResult{Matched: false}
 	}
 
-	if !isSizeMatch(r.Match, f.Size) {
+	// Extension matching only applies to files
+	if !f.IsDir && !isExtensionMatch(r.Match, f.Name) {
 		return MatchResult{Matched: false}
 	}
 
-	if !isAgeMatch(r.Match, f.ModTime) {
-		return MatchResult{Matched: false}
+	// Size and age matching only apply to files
+	if !f.IsDir {
+		if !isSizeMatch(r.Match, f.Size) {
+			return MatchResult{Matched: false}
+		}
+		if !isAgeMatch(r.Match, f.ModTime) {
+			return MatchResult{Matched: false}
+		}
 	}
 
 	return MatchResult{Matched: true, Rule: r}

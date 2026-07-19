@@ -23,6 +23,7 @@ type MatchConfig struct {
 	MaxSize    string   `yaml:"max_size"`
 	OlderThan  string   `yaml:"older_than"`
 	NewerThan  string   `yaml:"newer_than"`
+	Type       string   `yaml:"type"` // "file" (default) | "dir"
 }
 
 // ScopeConfig restricts which directories a rule applies to.
@@ -32,9 +33,23 @@ type ScopeConfig struct {
 
 // RuleOptions controls per-rule behavior.
 type RuleOptions struct {
-	OnConflict string `yaml:"on_conflict"` // "rename" | "skip" | "overwrite"
-	Recursive  bool   `yaml:"recursive"`
+	OnConflict  string `yaml:"on_conflict"`  // "rename" | "skip" | "overwrite"
+	Recursive   bool   `yaml:"recursive"`
+	Action      string `yaml:"action"`       // "move" (default) | "flatten"
+	RemoveEmpty bool   `yaml:"remove_empty"` // after flatten: remove source dir if empty
 }
+
+// Action values for RuleOptions.
+const (
+	ActionMove    = "move"
+	ActionFlatten = "flatten"
+)
+
+// MatchType values for MatchConfig.
+const (
+	MatchTypeFile = "file"
+	MatchTypeDir  = "dir"
+)
 
 // OnConflict strategies.
 const (
