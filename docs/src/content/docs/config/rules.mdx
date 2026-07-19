@@ -82,7 +82,7 @@ scope:
 
 ### `scope.watch_dirs`
 
-Directories the rule monitors when `ordr watch` is running. When empty, falls back to `scope.dirs`.
+Directories the rule monitors when `ordr watch` is running. Completely independent from `scope.dirs` — no fallback. If `watch_dirs` is not set, the rule is inactive during watch mode.
 
 ```yaml
 scope:
@@ -90,17 +90,21 @@ scope:
   watch_dirs: ["~/Downloads", "~/Desktop"]
 ```
 
-This lets you control manual and automatic behavior independently:
+This gives you full independent control:
 
 ```yaml
-# Watch Desktop silently, but never include it in manual runs
+# Clean Downloads manually, watch both Downloads and Desktop automatically
 scope:
   dirs: ["~/Downloads"]
   watch_dirs: ["~/Downloads", "~/Desktop"]
 
-# Only watch, never match in manual runs
+# Only active during watch, never matched by ordr clean
 scope:
   watch_dirs: ["~/Desktop"]
+
+# Only active during ordr clean, never watched
+scope:
+  dirs: ["~/Downloads"]
 ```
 
 Paths support `~` for the home directory. Both absolute and relative paths are accepted.

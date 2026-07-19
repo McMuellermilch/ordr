@@ -42,7 +42,7 @@ rules:
 
     scope:
       dirs: []                      # directories for `ordr clean` (empty = everywhere)
-      watch_dirs: []                # directories for `ordr watch` (falls back to dirs if empty)
+      watch_dirs: []                # directories for `ordr watch` (empty = rule not watched)
 
     options:
       on_conflict: "rename"         # rename | skip | overwrite
