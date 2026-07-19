@@ -32,6 +32,7 @@ rules:
     target: "documents"             # destination (relative or absolute, ~ supported)
 
     match:
+      type: "file"                  # file (default) | dir
       extensions: [".pdf", ".docx"] # file extension filter
       pattern: "^Invoice.*"         # regex on filename (optional)
       min_size: "1MB"               # minimum file size (optional)
@@ -46,6 +47,8 @@ rules:
     options:
       on_conflict: "rename"         # rename | skip | overwrite
       recursive: false              # recurse into subdirectories
+      action: "move"                # move (default) | flatten
+      remove_empty: false           # flatten only: remove source dir if empty after
 ```
 
 ---

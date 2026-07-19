@@ -5,6 +5,25 @@ description: All available matchers and how to combine them.
 
 ## Matchers reference
 
+### `type`
+
+Whether to match files or directories. Defaults to `file`.
+
+| Value | Description |
+|-------|-------------|
+| `file` (default) | Matches regular files only |
+| `dir` | Matches directories only |
+
+```yaml
+match:
+  type: "dir"
+  pattern: "^AppIcons$"
+```
+
+When `type: dir` is set, `extensions`, `min_size`, `max_size`, `older_than`, and `newer_than` are ignored — only `pattern` applies.
+
+---
+
 ### `extensions`
 
 Match files by extension. Case-insensitive. Leading dot is optional in the config but recommended.
@@ -85,6 +104,30 @@ When `true`, the rule also applies to files in subdirectories of the target dire
 ```yaml
 options:
   recursive: true
+```
+
+### `action`
+
+Controls what happens when a directory rule matches. Only applies when `match.type: dir`.
+
+| Value | Behavior |
+|-------|----------|
+| `move` (default) | Moves the entire directory as a unit |
+| `flatten` | Extracts all top-level files from the directory into `target` |
+
+```yaml
+options:
+  action: "flatten"
+```
+
+### `remove_empty`
+
+Only applies when `action: flatten`. When `true`, the source directory is deleted after extraction if it is empty.
+
+```yaml
+options:
+  action: "flatten"
+  remove_empty: true
 ```
 
 ---

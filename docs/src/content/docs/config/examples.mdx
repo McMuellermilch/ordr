@@ -120,6 +120,39 @@ rules:
 
 ---
 
+## Folder move and flatten
+
+Move an entire folder to a new location, or extract its contents into a target directory.
+
+```yaml
+version: 1
+
+rules:
+  # Move a whole folder as a unit
+  - name: "Move AppIcons folder"
+    target: "~/Pictures/Icons"
+    match:
+      type: dir
+      pattern: "^AppIcons$"
+    options:
+      action: move
+
+  # Extract all files from a folder into a target directory
+  - name: "Flatten travel docs"
+    target: "~/Documents/Travel"
+    match:
+      type: dir
+      pattern: "(?i)kanada|reise|travel"
+    options:
+      action: flatten
+      remove_empty: true   # delete the source folder if it is empty after extraction
+```
+
+`action: move` treats the directory as a single unit — it is moved to `target/FolderName`.
+`action: flatten` moves every top-level file inside the directory into `target`, leaving subdirectories in place.
+
+---
+
 ## Invoice organization
 
 ```yaml
